@@ -9,7 +9,7 @@ function App() {
   const [calls,      setCalls]      = useState([]);
   const [analytics,  setAnalytics]  = useState(null);
 
-  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const apiUrl = process.env.REACT_APP_API_URL || 'https://cold-call-multi-languages.onrender.com/api';
 
   const fetchCalls = useCallback(async () => {
     try {

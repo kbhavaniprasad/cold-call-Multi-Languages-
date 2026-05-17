@@ -4,7 +4,7 @@ import { RetellWebClient } from 'retell-client-js-sdk';
 import './component.css';
 
 const AgentInterface = ({ onNewCall, apiUrl: propApiUrl }) => {
-  const apiUrl = propApiUrl || process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const apiUrl = propApiUrl || process.env.REACT_APP_API_URL || 'https://cold-call-multi-languages.onrender.com/api';
 
   // call state: idle | loading | active | ending | ended | error
   const [callState, setCallState] = useState('idle');
