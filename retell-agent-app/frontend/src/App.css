@@ -1,0 +1,49 @@
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+}
+
+.app-header p {
+  margin: 8px 0 0;
+  color: #c7d2fe;
+}
+
+nav {
+  display: flex;
+  gap: 12px;
+}
+
+nav button {
+  border: none;
+  cursor: pointer;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.14);
+  color: #eef2ff;
+  transition: background 0.2s ease;
+}
+
+nav button.active,
+nav button:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #4338ca 100%);
+}
+
+.app-main {
+  display: grid;
+  gap: 24px;
+}
