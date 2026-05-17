@@ -235,11 +235,16 @@ const AgentInterface = ({ onNewCall, apiUrl: propApiUrl }) => {
           <div className="chat-container">
             <div className="chat-header">
               <span className="chat-title">💬 Live Conversation</span>
-              {isActive && (
-                <span className={`speaker-badge ${agentTalking ? 'agent-speaking' : userTalking ? 'user-speaking' : ''}`}>
-                  {agentTalking ? '🤖 Agent speaking' : '🎙️ Listening…'}
-                </span>
-              )}
+              <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                {chatMessages.length > 0 && (
+                  <span className="chat-msg-count">{chatMessages.length} msg{chatMessages.length !== 1 ? 's' : ''}</span>
+                )}
+                {isActive && (
+                  <span className={`speaker-badge ${agentTalking ? 'agent-speaking' : userTalking ? 'user-speaking' : ''}`}>
+                    {agentTalking ? '🤖 Agent speaking' : '🎙️ Listening…'}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="chat-messages">
@@ -255,6 +260,11 @@ const AgentInterface = ({ onNewCall, apiUrl: propApiUrl }) => {
                   >
                     <span className="bubble-label">
                       {msg.role === 'user' ? '🧑 You' : '🤖 Agent'}
+                      {msg.timestamp && (
+                        <span className="bubble-time">
+                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </span>
+                      )}
                     </span>
                     <p className="bubble-text">{msg.content}</p>
                   </div>
