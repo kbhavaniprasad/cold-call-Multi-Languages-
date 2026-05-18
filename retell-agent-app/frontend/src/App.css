@@ -1,49 +1,108 @@
 .app-shell {
-  max-width: 1200px;
+  width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 24px;
+  padding: 28px 20px 40px;
 }
 
 .app-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 20px;
 }
 
 .app-header h1 {
   margin: 0;
-  font-size: clamp(2rem, 3vw, 2.8rem);
+  color: #111827;
+  font-size: 2rem;
+  line-height: 1.05;
+  letter-spacing: 0;
 }
 
 .app-header p {
+  max-width: 620px;
   margin: 8px 0 0;
-  color: #c7d2fe;
+  color: #64748b;
+  font-size: 0.98rem;
 }
 
 nav {
   display: flex;
-  gap: 12px;
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
 
 nav button {
+  min-height: 42px;
   border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #475569;
   cursor: pointer;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: rgba(79, 70, 229, 0.14);
-  color: #eef2ff;
-  transition: background 0.2s ease;
+  font-weight: 700;
+  padding: 0 14px;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 nav button.active,
 nav button:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #4338ca 100%);
+  background: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.18);
 }
 
 .app-main {
   display: grid;
-  gap: 24px;
+  gap: 18px;
+}
+
+.data-error {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 18px 12px 28px;
+  }
+
+  .app-header {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .app-header h1 {
+    font-size: 1.55rem;
+  }
+
+  .app-header p {
+    font-size: 0.92rem;
+  }
+
+  nav {
+    position: sticky;
+    top: 8px;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  nav button {
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 6px;
+    font-size: 0.82rem;
+  }
 }

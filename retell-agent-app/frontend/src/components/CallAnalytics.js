@@ -32,15 +32,16 @@ const CallAnalytics = ({ analytics, calls }) => {
     <section className="analytics-panel">
       <h2>Analytics Dashboard</h2>
       <p className="analytics-subtitle">
-        Persistent stats — data survives page refreshes and is stored in the database.
+        Persistent stats from the {analytics?.storage || 'configured'} store
+        {analytics?.collection ? ` (${analytics.collection} collection)` : ''}.
       </p>
 
       <div className="analytics-grid">
-        <StatCard icon="📞" label="Total Calls"    value={totalCalls}                    color="purple" />
-        <StatCard icon="🌐" label="Web Calls"      value={webCalls}                      color="blue"   />
-        <StatCard icon="📱" label="Phone Calls"    value={phoneCalls}                    color="green"  />
-        <StatCard icon="⏱" label="Avg Duration"   value={formatDuration(averageDuration)} color="orange" />
-        <StatCard icon="🕐" label="Total Duration" value={formatDuration(totalDuration)}  color="teal"   />
+        <StatCard icon="ALL" label="Total Calls"    value={totalCalls}                    color="purple" />
+        <StatCard icon="WEB" label="Web Calls"      value={webCalls}                      color="blue"   />
+        <StatCard icon="TEL" label="Phone Calls"    value={phoneCalls}                    color="green"  />
+        <StatCard icon="AVG" label="Avg Duration"   value={formatDuration(averageDuration)} color="orange" />
+        <StatCard icon="SUM" label="Total Duration" value={formatDuration(totalDuration)}  color="teal"   />
       </div>
 
       {totalCalls > 0 && (
@@ -57,8 +58,8 @@ const CallAnalytics = ({ analytics, calls }) => {
             />
           </div>
           <div className="breakdown-legend">
-            <span className="legend-web">🌐 Web {webCalls}</span>
-            <span className="legend-phone">📱 Phone {phoneCalls}</span>
+            <span className="legend-web">Web {webCalls}</span>
+            <span className="legend-phone">Phone {phoneCalls}</span>
           </div>
         </div>
       )}

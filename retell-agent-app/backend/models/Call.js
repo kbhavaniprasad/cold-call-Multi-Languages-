@@ -9,6 +9,7 @@ const MessageSchema = new mongoose.Schema({
 
 const CallSchema = new mongoose.Schema({
   callId: { type: String, unique: true, sparse: true },
+  chatName: { type: String, default: 'Untitled call' },
   agentId: { type: String, default: '' },
   callType: { type: String, enum: ['web', 'phone'], default: 'web' },
   status: { type: String, default: 'ended' },
@@ -21,5 +22,4 @@ const CallSchema = new mongoose.Schema({
   metadata: { type: mongoose.Schema.Types.Mixed },
 });
 
-module.exports = mongoose.model('Call', CallSchema, 'messages');
-
+module.exports = mongoose.model('Call', CallSchema, 'calls');

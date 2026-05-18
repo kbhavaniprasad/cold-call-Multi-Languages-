@@ -8,26 +8,33 @@ function App() {
   const [activeTab,  setActiveTab]  = useState('agent');
   const [calls,      setCalls]      = useState([]);
   const [analytics,  setAnalytics]  = useState(null);
+  const [dataError,  setDataError]  = useState('');
 
   const apiUrl = process.env.REACT_APP_API_URL || 'https://cold-call-multi-languages.onrender.com/api';
 
   const fetchCalls = useCallback(async () => {
     try {
       const response = await fetch(`${apiUrl}/calls`);
+      if (!response.ok) throw new Error(`Calls request failed with status ${response.status}`);
       const data = await response.json();
       setCalls(Array.isArray(data) ? data : []);
+      setDataError('');
     } catch (error) {
       console.error('Error fetching calls:', error);
+      setDataError(error.message || 'Unable to fetch call history');
     }
   }, [apiUrl]);
 
   const fetchAnalytics = useCallback(async () => {
     try {
       const response = await fetch(`${apiUrl}/calls/analytics`);
+      if (!response.ok) throw new Error(`Analytics request failed with status ${response.status}`);
       const data = await response.json();
       setAnalytics(data);
+      setDataError('');
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      setDataError(error.message || 'Unable to fetch analytics');
     }
   }, [apiUrl]);
 
@@ -35,6 +42,27 @@ function App() {
     fetchCalls();
     fetchAnalytics();
   }, [fetchCalls, fetchAnalytics]);
+
+  const updateCallName = useCallback(async (call, chatName) => {
+    const id = call.callId || call._id || call.id;
+    if (!id || !chatName.trim()) return;
+
+    const response = await fetch(`${apiUrl}/calls/${id}/name`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatName: chatName.trim() }),
+    });
+    if (!response.ok) throw new Error(`Rename request failed with status ${response.status}`);
+
+    setCalls((currentCalls) =>
+      currentCalls.map((item) =>
+        (item.callId || item._id || item.id) === id
+          ? { ...item, chatName: chatName.trim() }
+          : item
+      )
+    );
+    fetchAnalytics();
+  }, [apiUrl, fetchAnalytics]);
 
   // Load on mount
   useEffect(() => {
@@ -67,9 +95,14 @@ function App() {
           </button>
         </nav>
       </header>
+      {dataError && (
+        <div className="data-error">
+          History/analytics could not refresh: {dataError}
+        </div>
+      )}
       <main className="app-main">
         {activeTab === 'agent'     && <AgentInterface onNewCall={refreshData} apiUrl={apiUrl} />}
-        {activeTab === 'history'   && <CallHistory calls={calls} onRefresh={refreshData} />}
+        {activeTab === 'history'   && <CallHistory calls={calls} onRefresh={refreshData} onRename={updateCallName} />}
         {activeTab === 'analytics' && <CallAnalytics analytics={analytics} calls={calls} />}
       </main>
     </div>
