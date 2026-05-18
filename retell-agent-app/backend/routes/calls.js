@@ -44,16 +44,47 @@ const normalizeRole = (role) => {
   return 'user';
 };
 
+const fillerWords = new Set(['yeah', 'yea', 'yes', 'yep', 'uh', 'um', 'umm', 'hmm', 'ah', 'oh', 'okay', 'ok', 'like']);
+
+const cleanMessageContent = (value) =>
+  cleanText(value)
+    .replace(/\b(\w+)(\s+\1\b)+/gi, '$1')
+    .replace(/\b(i|a)\s*\.\s*/gi, '')
+    .replace(/\b(yeah|uh|um|umm|hmm|ah|oh|okay|ok)[,.]?\s*/gi, ' ')
+    .replace(/\s+([,.!?])/g, '$1')
+    .replace(/([,.!?]){2,}/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const hasMeaningfulContent = (value) =>
+  cleanText(value)
+    .split(/\s+/)
+    .some((word) => !fillerWords.has(word.toLowerCase().replace(/[^a-z]/g, '')));
+
 const normalizeMessages = (messages) => {
   if (!Array.isArray(messages)) return [];
 
   return messages
     .map((message) => ({
       role: normalizeRole(message.role || message.speaker),
-      content: cleanText(message.content || message.text || message.transcript),
+      content: cleanMessageContent(message.content || message.text || message.transcript),
       timestamp: toIsoDate(message.timestamp || message.createdAt || message.time),
     }))
-    .filter((message) => message.content);
+    .filter((message) => message.content && hasMeaningfulContent(message.content))
+    .reduce((cleaned, message) => {
+      const last = cleaned[cleaned.length - 1];
+      if (last && last.role === message.role) {
+        const previous = last.content.toLowerCase();
+        const next = message.content.toLowerCase();
+        if (previous === next || previous.startsWith(next)) return cleaned;
+        if (next.startsWith(previous)) {
+          cleaned[cleaned.length - 1] = message;
+          return cleaned;
+        }
+      }
+      cleaned.push(message);
+      return cleaned;
+    }, []);
 };
 
 const transcriptFromMessages = (messages) =>
@@ -65,10 +96,12 @@ const normalizeCall = (body = {}) => {
   const messages = normalizeMessages(body.messages);
   const transcript = cleanText(body.transcript) || transcriptFromMessages(messages);
   const now = new Date();
+  const endedAt = toIsoDate(body.endedAt || body.endTimestamp || body.end_timestamp, now);
 
   return {
     callId: cleanText(body.callId || body.call_id),
     chatName: cleanText(body.chatName || body.chat_name) || 'Untitled call',
+    userName: cleanText(body.userName || body.user_name || body.metadata?.userName) || 'User',
     agentId: cleanText(body.agentId || body.agent_id),
     callType: body.callType === 'phone' ? 'phone' : 'web',
     status: cleanText(body.status) || 'ended',
@@ -77,7 +110,10 @@ const normalizeCall = (body = {}) => {
     recordingUrl: cleanText(body.recordingUrl || body.recording_url),
     durationSeconds: Math.max(0, Math.round(Number(body.durationSeconds || body.duration_seconds || 0))),
     createdAt: toIsoDate(body.createdAt || body.startTimestamp || body.start_timestamp, now),
-    endedAt: toIsoDate(body.endedAt || body.endTimestamp || body.end_timestamp, now),
+    endedAt,
+    callDate: cleanText(body.callDate || body.call_date) || endedAt.toLocaleDateString(),
+    callTime: cleanText(body.callTime || body.call_time) || endedAt.toLocaleTimeString(),
+    analyticsSummary: body.analyticsSummary || body.analytics_summary || body.metadata?.analyticsSummary || {},
     metadata: body.metadata || {},
   };
 };
@@ -107,6 +143,14 @@ router.get('/analytics', async (req, res) => {
     const totalDuration = calls.reduce((sum, call) => sum + (call.durationSeconds || 0), 0);
     const averageDuration = totalCalls ? Math.round(totalDuration / totalCalls) : 0;
     const withTranscript = calls.filter((call) => (call.messages || []).length || call.transcript).length;
+    const successfulCalls = calls.filter((call) => call.status === 'ended').length;
+    const successRate = totalCalls ? Math.round((successfulCalls / totalCalls) * 100) : 0;
+    const engagementValues = calls
+      .map((call) => Number(call.analyticsSummary?.engagementScore || call.metadata?.analyticsSummary?.engagementScore || 0))
+      .filter((value) => value > 0);
+    const engagementScore = engagementValues.length
+      ? Math.round(engagementValues.reduce((sum, value) => sum + value, 0) / engagementValues.length)
+      : 0;
 
     res.json({
       totalCalls,
@@ -115,6 +159,9 @@ router.get('/analytics', async (req, res) => {
       averageDuration,
       totalDuration,
       withTranscript,
+      activeCalls: 0,
+      successRate,
+      engagementScore,
       collection: COLLECTION_NAME,
       storage: isDbReady() ? 'mongodb' : 'file',
     });

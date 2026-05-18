@@ -82,25 +82,6 @@
   50% { opacity: 0.45; transform: scale(0.78); }
 }
 
-.call-setup-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.chat-name-field {
-  display: grid;
-  gap: 6px;
-}
-
-.chat-name-field span {
-  color: #64748b;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.chat-name-field input,
 .history-name-input {
   width: 100%;
   min-height: 44px;
@@ -113,7 +94,6 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.chat-name-field input:focus,
 .history-name-input:focus {
   border-color: #0f766e;
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
@@ -234,6 +214,13 @@
   background: #f8fafc;
 }
 
+.chat-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .chat-title {
   color: #111827;
   font-size: 0.88rem;
@@ -348,6 +335,20 @@
   color: #172033;
 }
 
+.bubble-pending .bubble-text {
+  opacity: 0.82;
+  border-style: dashed;
+}
+
+.pending-label {
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #0e7490;
+  padding: 1px 7px;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
 .chat-saved-note {
   border-top: 1px solid #dcfce7;
   background: #f0fdf4;
@@ -399,6 +400,11 @@
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   background: #ffffff;
+}
+
+.history-card-open {
+  display: grid;
+  max-height: min(720px, 78vh);
 }
 
 .history-card-top {
@@ -481,6 +487,10 @@
   border-top: 1px solid #e2e8f0;
   background: #f8fafc;
   padding: 14px;
+  max-height: min(520px, 58vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 .transcript-msg-count {
@@ -604,10 +614,6 @@
 
   .agent-heading {
     align-items: flex-start;
-  }
-
-  .call-setup-grid {
-    grid-template-columns: 1fr;
   }
 
   .action-row,

@@ -9,7 +9,7 @@ const StatCard = ({ label, value, icon, color }) => (
   </div>
 );
 
-const CallAnalytics = ({ analytics, calls }) => {
+const CallAnalytics = ({ analytics, calls, liveAnalytics = {} }) => {
   // Use pre-computed analytics from backend if available, otherwise derive from calls array
   const totalCalls      = analytics?.totalCalls      ?? calls.length;
   const webCalls        = analytics?.webCalls        ?? calls.filter((c) => c.callType === 'web').length;
@@ -20,6 +20,14 @@ const CallAnalytics = ({ analytics, calls }) => {
       : 0
   );
   const totalDuration   = analytics?.totalDuration   ?? calls.reduce((s, c) => s + (c.durationSeconds || 0), 0);
+  const activeCalls = liveAnalytics.activeCalls || 0;
+  const completedCalls = totalCalls;
+  const userSpeakingTime = liveAnalytics.userSpeakingSeconds || 0;
+  const aiSpeakingTime = liveAnalytics.aiSpeakingSeconds || 0;
+  const engagementScore = liveAnalytics.engagementScore || analytics?.engagementScore || 0;
+  const successRate = analytics?.successRate ?? (
+    completedCalls ? Math.round((calls.filter((c) => c.status === 'ended').length / completedCalls) * 100) : 0
+  );
 
   const formatDuration = (s) => {
     if (!s) return '0s';
@@ -37,11 +45,14 @@ const CallAnalytics = ({ analytics, calls }) => {
       </p>
 
       <div className="analytics-grid">
-        <StatCard icon="ALL" label="Total Calls"    value={totalCalls}                    color="purple" />
-        <StatCard icon="WEB" label="Web Calls"      value={webCalls}                      color="blue"   />
-        <StatCard icon="TEL" label="Phone Calls"    value={phoneCalls}                    color="green"  />
-        <StatCard icon="AVG" label="Avg Duration"   value={formatDuration(averageDuration)} color="orange" />
-        <StatCard icon="SUM" label="Total Duration" value={formatDuration(totalDuration)}  color="teal"   />
+        <StatCard icon="LIVE" label="Active Calls" value={activeCalls} color="teal" />
+        <StatCard icon="DONE" label="Completed Calls" value={completedCalls} color="purple" />
+        <StatCard icon="AVG" label="Avg Duration" value={formatDuration(averageDuration)} color="orange" />
+        <StatCard icon="YOU" label="User Speaking" value={formatDuration(userSpeakingTime)} color="blue" />
+        <StatCard icon="AI" label="AI Speaking" value={formatDuration(aiSpeakingTime)} color="green" />
+        <StatCard icon="ENG" label="Engagement" value={`${engagementScore}%`} color="teal" />
+        <StatCard icon="OK" label="Success Rate" value={`${successRate}%`} color="green" />
+        <StatCard icon="SUM" label="Total Duration" value={formatDuration(totalDuration)} color="orange" />
       </div>
 
       {totalCalls > 0 && (

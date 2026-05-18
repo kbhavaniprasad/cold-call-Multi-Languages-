@@ -10,6 +10,7 @@ const MessageSchema = new mongoose.Schema({
 const CallSchema = new mongoose.Schema({
   callId: { type: String, unique: true, sparse: true },
   chatName: { type: String, default: 'Untitled call' },
+  userName: { type: String, default: 'User' },
   agentId: { type: String, default: '' },
   callType: { type: String, enum: ['web', 'phone'], default: 'web' },
   status: { type: String, default: 'ended' },
@@ -17,8 +18,11 @@ const CallSchema = new mongoose.Schema({
   messages: { type: [MessageSchema], default: [] },
   recordingUrl: { type: String, default: '' },
   durationSeconds: { type: Number, default: 0 },
+  callDate: { type: String, default: '' },
+  callTime: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
   endedAt: { type: Date },
+  analyticsSummary: { type: mongoose.Schema.Types.Mixed },
   metadata: { type: mongoose.Schema.Types.Mixed },
 });
 

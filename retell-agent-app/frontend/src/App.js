@@ -8,6 +8,7 @@ function App() {
   const [activeTab,  setActiveTab]  = useState('agent');
   const [calls,      setCalls]      = useState([]);
   const [analytics,  setAnalytics]  = useState(null);
+  const [liveAnalytics, setLiveAnalytics] = useState({ activeCalls: 0 });
   const [dataError,  setDataError]  = useState('');
 
   const apiUrl = process.env.REACT_APP_API_URL || 'https://cold-call-multi-languages.onrender.com/api';
@@ -101,9 +102,11 @@ function App() {
         </div>
       )}
       <main className="app-main">
-        {activeTab === 'agent'     && <AgentInterface onNewCall={refreshData} apiUrl={apiUrl} />}
+        <div className={activeTab === 'agent' ? '' : 'tab-panel-hidden'}>
+          <AgentInterface onNewCall={refreshData} onLiveAnalytics={setLiveAnalytics} apiUrl={apiUrl} />
+        </div>
         {activeTab === 'history'   && <CallHistory calls={calls} onRefresh={refreshData} onRename={updateCallName} />}
-        {activeTab === 'analytics' && <CallAnalytics analytics={analytics} calls={calls} />}
+        {activeTab === 'analytics' && <CallAnalytics analytics={analytics} calls={calls} liveAnalytics={liveAnalytics} />}
       </main>
     </div>
   );
